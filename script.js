@@ -100,7 +100,7 @@ function startMusic(c){
     audio.loop=true;
     audio.preload="auto";
     audio.addEventListener("error",()=>{musicPause.textContent="▶";musicName.textContent=`♫ ${c.musicaNome||"AUDIO NÃO DISPONÍVEL"}`});
-    audio.play().catch(()=>{musicPause.textContent="▶"});
+    audio.load(); audio.play().catch(()=>{});
     musicPause.textContent="❚❚";
     return;
   }
