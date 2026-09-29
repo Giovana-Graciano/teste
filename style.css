@@ -175,3 +175,33 @@ button{font:inherit}.hidden{display:none!important}.screen{min-height:100vh;widt
   .card-content .big-icon{font-size:70px}
   .card-photo-wall img{width:130px;height:130px}
 }
+
+
+/* V33 — cohesive Y2K friend-card composition */
+.v33-card{position:relative;min-height:560px;overflow:hidden;padding:16px;background:var(--v33-bg);color:var(--v33-text);border:7px ridge #fff;box-shadow:8px 8px #111,inset 0 0 0 3px rgba(255,255,255,.8);isolation:isolate}
+.v33-card::before{content:"";position:absolute;inset:0;z-index:0;background:radial-gradient(circle at 12% 18%,rgba(255,255,255,.8) 0 3px,transparent 4px),radial-gradient(circle at 82% 12%,rgba(255,255,255,.65) 0 4px,transparent 5px),radial-gradient(circle at 70% 82%,rgba(255,255,255,.55) 0 3px,transparent 4px);background-size:80px 70px,110px 90px,95px 85px;pointer-events:none}
+.v33-scanlines{position:absolute;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.035) 0 1px,transparent 1px 5px)}
+.v33-emoji-layer{position:absolute;inset:0;z-index:2;pointer-events:none}
+.v33-emoji{position:absolute;display:block;font-size:32px;line-height:1;filter:drop-shadow(3px 3px #111);animation:v33float 2.6s ease-in-out infinite}
+.v33-e0{left:2%;top:10%}.v33-e1{left:13%;bottom:8%;animation-delay:.2s}.v33-e2{right:5%;top:13%;animation-delay:.4s}.v33-e3{right:10%;bottom:10%;animation-delay:.6s}.v33-e4{left:48%;top:3%;animation-delay:.8s}.v33-e5{right:36%;top:7%;animation-delay:1s}.v33-e6{left:33%;bottom:4%;animation-delay:1.2s}.v33-e7{right:25%;bottom:20%;animation-delay:1.4s}.v33-e8{left:7%;top:48%;animation-delay:1.6s}.v33-e9{right:3%;top:46%;animation-delay:1.8s}
+.v33-topbar,.v33-header,.v33-message,.v33-photo-wall,.v33-gif,.v33-footer{position:relative;z-index:4}
+.v33-topbar{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:5px 8px;margin-bottom:12px;background:#111;color:#fff36a;border:3px outset #fff;box-shadow:3px 3px #111;font-family:"Courier New",monospace;font-size:9px;font-weight:900}
+.v33-header{display:grid;grid-template-columns:90px 1fr 120px;gap:14px;align-items:center;padding:12px;background:rgba(255,255,255,.73);border:5px ridge #fff;box-shadow:5px 5px #111}
+.v33-icon{display:grid;place-items:center;width:82px;height:82px;font-size:55px;background:rgba(255,255,255,.8);border:4px outset #fff;box-shadow:4px 4px #111}
+.v33-classified{color:var(--v33-accent);font-family:"Courier New",monospace;font-size:10px;font-weight:900}
+.v33-title-block h3{margin:4px 0;font-size:28px;line-height:1;text-shadow:2px 2px #fff}
+.v33-from{font-family:"Courier New",monospace;font-size:11px;font-weight:900}
+.v33-sticker{justify-self:end;max-width:105px;padding:10px 6px;transform:rotate(4deg);text-align:center;background:#fff36a;color:#111;border:3px solid #111;box-shadow:4px 4px #111;font-family:"Courier New",monospace;font-size:8px;font-weight:900}
+.v33-message{margin:18px 2% 12px;padding:16px 18px;min-height:85px;background:rgba(255,255,255,.9);border:5px ridge #fff;box-shadow:5px 5px #111;font-size:17px;line-height:1.5}
+.v33-photo-wall{display:flex;flex-wrap:wrap;justify-content:center;gap:15px;margin:18px 2%}
+.v33-photo{position:relative;background:#fff;padding:6px;border:3px solid #111;box-shadow:5px 5px #111}
+.v33-photo img{display:block;width:190px;height:190px;object-fit:cover}
+.v33-photo-wall.polaroid .v33-photo{padding:8px 8px 25px;border:1px solid #aaa}
+.v33-photo-wall.polaroid .v33-photo small{position:absolute;left:0;right:0;bottom:4px;text-align:center;font-family:"Comic Sans MS","Courier New",monospace;font-size:10px}
+.v33-photo-wall.pixel img{image-rendering:pixelated}
+.v33-photo-wall.sticker .v33-photo{border-radius:18px;transform:rotate(-2deg)}
+.v33-gif{display:flex;justify-content:center;margin:12px 0}
+.v33-gif img{max-width:55%;max-height:170px;object-fit:contain;border:5px ridge #fff;box-shadow:5px 5px #111}
+.v33-footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:16px;padding:7px 9px;background:#111;color:#fff;border:3px outset #fff;font-family:"Courier New",monospace;font-size:8px;font-weight:900}
+@keyframes v33float{0%,100%{transform:translateY(0) rotate(-4deg) scale(1)}50%{transform:translateY(-10px) rotate(5deg) scale(1.08)}}
+@media(max-width:720px){.v33-header{grid-template-columns:70px 1fr}.v33-icon{width:64px;height:64px;font-size:42px}.v33-sticker{display:none}.v33-title-block h3{font-size:22px}.v33-photo img{width:140px;height:140px}.v33-gif img{max-width:75%}}

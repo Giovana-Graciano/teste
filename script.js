@@ -92,71 +92,78 @@ function stopMusic(){
   musicBar.classList.add("hidden");
 }
 function openCard(id){
-  const c=cards.find(x=>x.id===id);if(!c)return;
+  const c=cards.find(x=>x.id===id); if(!c)return;
   currentCard=c;
   currentTrackIndex=Math.max(0,cards.findIndex(x=>x.id===id));
-  opened.add(id);saveOpened();
-  initAudio();tone(520,.04);setTimeout(()=>tone(780,.07),35);
+  opened.add(id); saveOpened();
+  initAudio(); tone(520,.04); setTimeout(()=>tone(780,.07),35);
   startMusic(c);
 
   const cfg=c.cardConfig||{};
   const theme=cfg.theme||"y2k";
-  const themeBg={
-    y2k:"linear-gradient(135deg,#fdf7ff 0%,#d8f0ff 35%,#ffd6ec 70%,#fff7a8 100%)",
-    fluminense:"linear-gradient(135deg,#fff 0%,#d9f4e4 35%,#f4c9d1 70%,#0d6b3b 100%)",
-    dino:"linear-gradient(135deg,#e8ffd5 0%,#a7df91 45%,#fff0a8 100%)",
-    pirate:"linear-gradient(135deg,#fff2bd 0%,#d7b77a 45%,#513d2a 100%)",
-    music:"linear-gradient(135deg,#eadbff 0%,#aee8ff 45%,#ffd4f2 100%)",
-    books:"linear-gradient(135deg,#fff7df 0%,#e8dcc5 50%,#c9b28d 100%)"
-  }[theme]||"linear-gradient(135deg,#e9ebe7,#a9aea7)";
+  const themes={
+    y2k:{bg:"linear-gradient(135deg,#fff8ff 0%,#d8f3ff 28%,#ffd7eb 65%,#fff5a6 100%)",accent:"#c90068",stamp:"★ Y2K MEMORY ★"},
+    fluminense:{bg:"linear-gradient(135deg,#f7fff9 0%,#d6f2df 34%,#f4c8d1 68%,#0c6b3b 100%)",accent:"#0b7040",stamp:"★ TRICOLOR MODE ★"},
+    dino:{bg:"linear-gradient(135deg,#f0ffd9 0%,#bfe89c 38%,#fff0a8 72%,#d7f6b7 100%)",accent:"#3d6d19",stamp:"★ DINO ZONE ★"},
+    pirate:{bg:"linear-gradient(135deg,#fff4bd 0%,#e3c37c 40%,#a87945 72%,#50351f 100%)",accent:"#6d3e14",stamp:"★ PIRATE MAIL ★"},
+    music:{bg:"linear-gradient(135deg,#f5e8ff 0%,#bceaff 34%,#ffd6ef 68%,#e8d7ff 100%)",accent:"#7b2ba8",stamp:"★ MUSIC MODE ★"},
+    books:{bg:"linear-gradient(135deg,#fff8e8 0%,#eadbc0 40%,#d1b78f 72%,#fff0cf 100%)",accent:"#79521e",stamp:"★ BOOKWORM FILE ★"}
+  };
+  const t=themes[theme]||themes.y2k;
   const emojis=Array.isArray(cfg.emojis)?cfg.emojis.filter(Boolean):[];
-  const gifTop=c.gifs?.top||cfg.gifs?.top||"";
-  const gifBottom=c.gifs?.bottom||cfg.gifs?.bottom||"";
   const font=cfg.font||"inherit";
   const textColor=cfg.textColor||"#111";
   const photoStyle=cfg.photoStyle||"classic";
+  const gifTop=c.gifs?.top||cfg.gifs?.top||"";
+  const gifBottom=c.gifs?.bottom||cfg.gifs?.bottom||"";
 
-  const emojiHTML=emojis.map((e,i)=>`
-    <span class="card-emoji-float card-emoji-${i%6}" aria-hidden="true">${esc(e)}</span>
-  `).join("");
-
-  const gifHTML=(url,pos)=>url?`
-    <div class="card-gif-zone card-gif-${pos}">
-      <img src="${esc(url)}" alt="" loading="eager"
-        onerror="this.closest('.card-gif-zone').classList.add('gif-broken')">
-    </div>`:"";
-
-  const photosHTML=c.fotos?.length?`
-    <div class="card-photo-wall ${esc(photoStyle)}">
-      ${c.fotos.map(f=>`<img src="${esc(f.data||f)}" alt="Foto da memória">`).join("")}
+  const emojiHTML=emojis.map((e,i)=>`<span class="v33-emoji v33-e${i%10}" aria-hidden="true">${esc(e)}</span>`).join("");
+  const gifHTML=(url,pos)=>url?`<div class="v33-gif v33-gif-${pos}"><img src="${esc(url)}" alt="" loading="eager" onerror="this.parentElement.remove()"></div>`:"";
+  const photosHTML=Array.isArray(c.fotos)&&c.fotos.length?`
+    <div class="v33-photo-wall ${esc(photoStyle)}">
+      ${c.fotos.map((f,i)=>`<div class="v33-photo v33-p${i%4}">
+        <img src="${esc(f.data||f)}" alt="Foto da memória">
+        ${photoStyle==="polaroid"?`<small>${esc(c.nome||"MEMORY")}</small>`:""}
+      </div>`).join("")}
     </div>`:"";
 
   cardWindow.className=`card-window anim-${c.tipoDeAnimacao||"secret"} opening`;
   $("#modalFile").textContent=`${String(c.id).toUpperCase()}.EXE`;
-
   cardContent.style.color=textColor;
   cardContent.style.fontFamily=font;
-  cardContent.innerHTML=`
-    <div class="card-memory-shell theme-${esc(theme)}" style="--card-bg:${themeBg};--card-text:${esc(textColor)}">
-      <div class="card-emoji-layer">${emojiHTML}</div>
-      <div class="card-theme-badge">★ ${esc(String(theme).toUpperCase())} MODE ★</div>
 
-      <div class="card-hero">
-        <div class="big-icon">${esc(c.icon||"★")}</div>
-        <div>
-          <div class="tiny">★ CLASSIFIED FRIEND MESSAGE ★</div>
-          <h3>${esc(c.titulo||"FELIZ ANIVERSÁRIO")}</h3>
-          <div class="from">DE: ${esc(c.nome||"UM AMIGO")}</div>
-        </div>
+  cardContent.innerHTML=`
+    <div class="v33-card" style="--v33-bg:${t.bg};--v33-accent:${t.accent};--v33-text:${esc(textColor)}">
+      <div class="v33-scanlines"></div>
+      <div class="v33-emoji-layer">${emojiHTML}</div>
+
+      <div class="v33-topbar">
+        <span>${esc(t.stamp)}</span><span>FRIEND CARD.EXE</span><span>${esc(String(theme).toUpperCase())}</span>
       </div>
 
       ${gifHTML(gifTop,"top")}
 
-      <div class="msg" style="color:${esc(textColor)}">${esc(c.mensagem||"Feliz aniversário, Renato!").replace(/\n/g,"<br>")}</div>
+      <div class="v33-header">
+        <div class="v33-icon">${esc(c.icon||"★")}</div>
+        <div class="v33-title-block">
+          <div class="v33-classified">★ CLASSIFIED FRIEND MESSAGE ★</div>
+          <h3>${esc(c.titulo||"FELIZ ANIVERSÁRIO")}</h3>
+          <div class="v33-from">DE: ${esc(c.nome||"UM AMIGO")}</div>
+        </div>
+        <div class="v33-sticker">${esc(t.stamp)}</div>
+      </div>
+
+      <div class="v33-message" style="color:${esc(textColor)};font-family:${esc(font)}">
+        ${esc(c.mensagem||"Feliz aniversário, Renato!").replace(/\n/g,"<br>")}
+      </div>
 
       ${photosHTML}
-
       ${gifHTML(gifBottom,"bottom")}
+
+      <div class="v33-footer">
+        <span>♥ MEMORY SAVED</span><span>2004 // FRIENDS.NET</span>
+        <span>★ ${esc(String(c.nome||"FRIEND").toUpperCase())} ★</span>
+      </div>
     </div>`;
 
   modal.classList.remove("hidden");
