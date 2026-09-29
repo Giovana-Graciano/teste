@@ -65,6 +65,8 @@ body.factory-locked>main{filter:blur(8px);pointer-events:none;user-select:none}
 <style>
 .v10-music-extra{display:none;margin-top:7px}.v10-music-extra input,.v10-music-extra select{width:100%;box-sizing:border-box}.v10-music-extra small{display:block;margin-top:5px;font-size:8px}.v10-music-extra.active{display:block}
 </style>
+
+.audio-preview-btn{margin-top:7px;padding:7px 10px;border:4px outset #fff;background:#111;color:#8dffb4;font-family:"Courier New",monospace;font-weight:900;cursor:pointer}.audio-preview-btn:active{border-style:inset}.audio-preview-status{display:block;margin-top:5px;font:700 9px "Courier New",monospace}
 </head><body><nav class="v18-create-nav"><a href="index.html#cards">↩ VOLTAR AOS CARTÕES</a><a href="index.html">⌂ INÍCIO</a></nav>
 <div id="friendGate" class="friend-gate">
   <div class="gate-window">
@@ -125,6 +127,7 @@ body.factory-locked>main{filter:blur(8px);pointer-events:none;user-select:none}
 <div id="spotify-status" class="spotify-status" aria-live="polite"></div><small>Ex.: open.spotify.com/track/... ou open.spotify.com/intl-pt/track/...</small></div>
             <div id="v10MusicBoxWrap" class="v10-music-extra"><select id="v10MusicBox"><option value="">Escolha uma música...</option><option value="audio/dial-up-dreams.wav">♫ Dial-Up Dreams</option><option value="audio/msn-after-school.wav">♫ MSN After School</option><option value="audio/y2k-starlight.wav">♫ Y2K Starlight</option><option value="audio/floppy-heart.wav">♫ Floppy Heart</option></select></div>
             <div id="v10FileWrap" class="v10-music-extra"><input id="v10MusicFile" type="file" accept="audio/mpeg,audio/wav,audio/*"><small>MP3/WAV recomendado · máximo 10 MB</small></div>
+            <div id="v10AudioPreviewWrap" class="v10-music-extra"><button type="button" id="v10AudioPreview" class="audio-preview-btn">▶ OUVIR ESTA MÚSICA</button><span id="v10AudioPreviewStatus" class="audio-preview-status"></span></div>
           </div>
           <button id="v11Surprise" type="button" style="width:100%;margin:10px 0;padding:12px;background:linear-gradient(#fff36b,#ff5b8d);border:6px outset #fff;box-shadow:5px 5px #111;font-weight:900;font-size:12px;cursor:pointer">✨ SURPRISE ME! — RANDOM Y2K MAGIC ✨</button>
           <button id="exportCard" type="button" class="start-button" style="font-size:10px;width:100%">💾 EXPORTAR MEU CARTÃO</button>
@@ -223,6 +226,24 @@ body.factory-locked>main{filter:blur(8px);pointer-events:none;user-select:none}
    const idx=["v10Photo1","v10Photo2","v10Photo3"].indexOf(id), f=e.target.files?.[0]; if(!f)return;
    const reader=new FileReader(); reader.onload=()=>{state.photos[idx]=reader.result;state.photos=state.photos.filter(Boolean);render()};reader.readAsDataURL(f);
  }));
+ let previewAudio=null;
+ function stopPreview(){if(previewAudio){previewAudio.pause();previewAudio.currentTime=0;previewAudio=null;} const st=q("#v10AudioPreviewStatus"); if(st)st.textContent=""; const b=q("#v10AudioPreview"); if(b)b.textContent="▶ OUVIR ESTA MÚSICA";}
+ function previewSelectedAudio(){
+   stopPreview();
+   const type=q("#v10MusicType").value;
+   if(type==="spotify"){q("#v10AudioPreviewStatus").textContent="Spotify usa o player oficial no cartão. Salve o cartão para testar.";return;}
+   let src="", label="";
+   if(type==="box"){src=q("#v10MusicBox").value; label=q("#v10MusicBox").selectedOptions[0]?.textContent||"Música";}
+   else if(type==="file"){src=state.audio; label=q("#v10MusicFile").files?.[0]?.name||"Áudio";}
+   if(!src){q("#v10AudioPreviewStatus").textContent="Escolha uma música primeiro.";return;}
+   try{
+     const resolved=/^(data:|blob:|https?:)/i.test(src)?src:new URL(src,document.baseURI).href;
+     previewAudio=new Audio(resolved); previewAudio.preload="auto";
+     previewAudio.addEventListener("error",()=>{q("#v10AudioPreviewStatus").textContent="⚠ Não foi possível reproduzir esta música.";});
+     previewAudio.addEventListener("ended",()=>{const b=q("#v10AudioPreview");if(b)b.textContent="▶ OUVIR ESTA MÚSICA";});
+     previewAudio.play().then(()=>{q("#v10AudioPreviewStatus").textContent="♫ Tocando: "+label;q("#v10AudioPreview").textContent="❚❚ PARAR";}).catch(()=>{q("#v10AudioPreviewStatus").textContent="Clique novamente para iniciar a reprodução.";});
+   }catch(e){q("#v10AudioPreviewStatus").textContent="⚠ Áudio inválido.";}
+ }
  function updateMusicFields(){
    const t=q("#v10MusicType").value;
    q("#v10SpotifyWrap").classList.toggle("active",t==="spotify");
@@ -230,9 +251,10 @@ body.factory-locked>main{filter:blur(8px);pointer-events:none;user-select:none}
    q("#v10FileWrap").classList.toggle("active",t==="file");
    render();
  }
- q("#v10MusicType").addEventListener("change",updateMusicFields);
- q("#v10MusicBox").addEventListener("change",render);
- q("#v10MusicFile").addEventListener("change",e=>{const f=e.target.files?.[0];if(!f)return;if(f.size>10*1024*1024){e.target.value="";q("#v10Status").textContent="⚠ O arquivo precisa ter no máximo 10 MB.";return}const r=new FileReader();r.onload=()=>{state.audio=r.result;render()};r.readAsDataURL(f)});
+ q("#v10MusicType").addEventListener("change",()=>{stopPreview();updateMusicFields();});
+ q("#v10MusicBox").addEventListener("change",()=>{stopPreview();render();});
+ q("#v10AudioPreview")?.addEventListener("click",()=>{if(previewAudio && !previewAudio.paused){stopPreview();}else{previewSelectedAudio();}});
+ q("#v10MusicFile").addEventListener("change",e=>{stopPreview();const f=e.target.files?.[0];if(!f)return;if(f.size>10*1024*1024){e.target.value="";q("#v10Status").textContent="⚠ O arquivo precisa ter no máximo 10 MB.";return}const r=new FileReader();r.onload=()=>{state.audio=r.result;render()};r.readAsDataURL(f)});
  q("#exportCard").addEventListener("click",()=>{
    const name=q("#v10Name").value.trim(), msg=q("#v10Msg").value.trim(); if(!name||!msg){q("#v10Status").textContent="⚠ PREENCHA PELO MENOS SEU NOME E SUA MENSAGEM.";return}
    const type=q("#v10MusicType").value;
