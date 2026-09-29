@@ -254,3 +254,12 @@ button{font:inherit}.hidden{display:none!important}.screen{min-height:100vh;widt
 .spotify-player{display:block;position:relative;width:min(100%,352px);height:152px;margin:10px auto 0;border:0;border-radius:12px;box-shadow:4px 4px #111;z-index:20}
 .music-bar{position:relative;z-index:30;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .music-bar button{font-family:"Courier New",monospace;font-weight:900;cursor:pointer}
+
+.v10-preview-music{display:inline-block;margin:8px 0;padding:6px 9px;background:#111;color:#fff36a;border:3px outset #fff;box-shadow:3px 3px #111;font-family:"Courier New",monospace;font-size:9px;font-weight:900;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spotify-player{background:#111}
+
+/* V36 — robust local audio + Spotify status */
+.spotify-status{margin-top:6px;font:700 10px "Courier New",monospace;min-height:14px}
+.spotify-status.ok{color:#087f3e}
+.spotify-status.error{color:#a40032}
+.audio-error{margin-top:5px;padding:5px;background:#ffe4e4;border:2px solid #a40032;color:#700020;font:700 10px "Courier New",monospace}

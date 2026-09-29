@@ -121,7 +121,8 @@ body.factory-locked>main{filter:blur(8px);pointer-events:none;user-select:none}
               <option value="box">★ RENATO'S MUSIC BOX ★</option>
               <option value="file">ARQUIVO DE ÁUDIO — MP3/WAV</option>
             </select>
-            <div id="v10SpotifyWrap" class="v10-music-extra"><input id="v10Music" placeholder="Cole aqui o link da música do Spotify"></div>
+            <div id="v10SpotifyWrap" class="v10-music-extra"><input id="v10Music" placeholder="Cole aqui o link da música do Spotify">
+<div id="spotify-status" class="spotify-status" aria-live="polite"></div><small>Ex.: open.spotify.com/track/... ou open.spotify.com/intl-pt/track/...</small></div>
             <div id="v10MusicBoxWrap" class="v10-music-extra"><select id="v10MusicBox"><option value="">Escolha uma música...</option><option value="audio/dial-up-dreams.wav">♫ Dial-Up Dreams</option><option value="audio/msn-after-school.wav">♫ MSN After School</option><option value="audio/y2k-starlight.wav">♫ Y2K Starlight</option><option value="audio/floppy-heart.wav">♫ Floppy Heart</option></select></div>
             <div id="v10FileWrap" class="v10-music-extra"><input id="v10MusicFile" type="file" accept="audio/mpeg,audio/wav,audio/*"><small>MP3/WAV recomendado · máximo 10 MB</small></div>
           </div>
@@ -131,7 +132,7 @@ body.factory-locked>main{filter:blur(8px);pointer-events:none;user-select:none}
           <p style="font-size:8px;line-height:1.4">Quando terminar, clique em <b>EXPORTAR MEU CARTÃO</b>. Um arquivo <b>.json</b> será baixado. Envie esse arquivo para a pessoa responsável pelo site. Ele só será publicado depois da revisão.</p>
         </div>
         <div class="v10-preview-wrap"><div class="v10-panel"><h3>★ 02 — LIVE PREVIEW ★</h3><div class="v10-preview" id="v10Preview"><div class="scan"></div><div class="v10-card" id="v10Card"><div class="v10-float v10-f1">✨</div><div class="v10-float v10-f2">💚</div><div class="v10-float v10-f3">⭐</div><div class="v10-float v10-f4">💿</div><div class="v10-hero" id="v10Hero">💚</div><h2 id="v10PreviewTitle">MY RENATINHO MEMORY</h2><div id="v10PreviewName" style="font-weight:bold">FROM: FRIEND</div><div id="v10PreviewPhotos" class="v10-media-strip"></div>
-<p id="v10PreviewMsg">Comece a escrever e veja sua memória aparecer aqui em tempo real.</p><div id="v10PreviewEmojis" style="font-size:25px;min-height:36px">✨ 💚 ⭐</div><div style="margin-top:20px;font-size:9px">★ MADE WITH THE CARD FACTORY ★</div></div></div></div></div>
+<p id="v10PreviewMsg">Comece a escrever e veja sua memória aparecer aqui em tempo real.</p><div id="v10PreviewMusic" class="v10-preview-music">♫ SEM MÚSICA</div><div id="v10PreviewEmojis" style="font-size:25px;min-height:36px">✨ 💚 ⭐</div><div style="margin-top:20px;font-size:9px">★ MADE WITH THE CARD FACTORY ★</div></div></div></div></div>
       </div>
     </div>
   </div>
@@ -184,11 +185,31 @@ body.factory-locked>main{filter:blur(8px);pointer-events:none;user-select:none}
  };
  const pick=a=>a[Math.floor(Math.random()*a.length)];
  const esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+ function parseSpotifyRefFactory(value){
+   const raw=String(value||"").trim();
+   if(!raw)return null;
+   try{
+     if(/^spotify:(track|album|playlist|episode|show):[A-Za-z0-9]+$/i.test(raw)){
+       const m=raw.match(/^spotify:(track|album|playlist|episode|show):([A-Za-z0-9]+)$/i);
+       return {type:m[1].toLowerCase(),id:m[2]};
+     }
+     const u=new URL(raw);
+     if(!/(^|\.)spotify\.com$/i.test(u.hostname))return null;
+     const m=u.pathname.match(/\/(track|album|playlist|episode|show)\/([A-Za-z0-9]+)(?:\/)?$/i);
+     return m?{type:m[1].toLowerCase(),id:m[2]}:null;
+   }catch(e){return null}
+ }
  function render(){
    const n=q("#v10Name").value||"FRIEND", t=q("#v10Title").value||"MY RENATINHO MEMORY", m=q("#v10Msg").value||"Comece a escrever e veja sua memória aparecer aqui em tempo real.";
    const font=q("#v10Font").value, color=q("#v10TextColor").value, style=q("#v10PhotoStyle").value;
    q("#v10PreviewName").textContent="FROM: "+n; q("#v10PreviewTitle").textContent=t; q("#v10PreviewMsg").textContent=m;
    q("#v10PreviewEmojis").textContent=state.emojis.join(" "); q("#v10Hero").textContent=themes[state.theme].hero;
+   const mt=q("#v10MusicType").value;
+   let musicLabel="♫ SEM MÚSICA";
+   if(mt==="spotify" && q("#v10Music").value.trim()) musicLabel="♫ SPOTIFY • "+(parseSpotifyRefFactory(q("#v10Music").value.trim())?"LINK OK":"LINK A CONFERIR");
+   if(mt==="box" && q("#v10MusicBox").value) musicLabel="♫ "+q("#v10MusicBox").selectedOptions[0].textContent.replace(/^♫\\s*/,"");
+   if(mt==="file" && state.audio) musicLabel="♫ "+(q("#v10MusicFile").files?.[0]?.name||"ÁUDIO PRÓPRIO");
+   q("#v10PreviewMusic").textContent=musicLabel;
    q("#v10Preview").style.background=themes[state.theme].bg; q("#v10Card").style.fontFamily=font;
    q("#v10Card").style.color=color; q("#v10PreviewTitle").style.color=color; q("#v10PreviewMsg").style.color=color;
    const photoBox=q("#v10PreviewPhotos"); photoBox.innerHTML="";
@@ -218,7 +239,8 @@ body.factory-locked>main{filter:blur(8px);pointer-events:none;user-select:none}
    let url="", musicName="", musicType=type;
    if(type==="spotify"){
      url=q("#v10Music").value.trim();
-     if(!/^https?:\/\/open\.spotify\.com\/(track|album|playlist|episode|show)\//i.test(url)){q("#v10Status").textContent="⚠ COLE UM LINK VÁLIDO DO SPOTIFY.";return}
+     const spotifyRef=parseSpotifyRefFactory(url);
+     if(!spotifyRef){q("#v10Status").textContent="⚠ COLE UM LINK DO SPOTIFY (track, álbum, playlist ou episódio).";return}
      musicName="Spotify";
    } else if(type==="box"){
      url=q("#v10MusicBox").value; musicName=q("#v10MusicBox").selectedOptions[0]?.textContent.replace(/^♫\s*/,"")||"Renato's Music Box";

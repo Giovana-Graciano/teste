@@ -19,6 +19,22 @@ async function loadCards(){
 }
 
 function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+
+
+function safeAudioSource(url){
+  try{return new URL(String(url||""),document.baseURI).href}catch(e){return ""}
+}
+
+function normalizeSpotify(raw){
+  const value=String(raw||"").trim();
+  if(!value) return "";
+  const clean=value.split("#")[0].split("?")[0];
+  const uri=clean.match(/^spotify:(track|album|playlist|episode):([A-Za-z0-9]+)$/i);
+  if(uri) return `spotify:${uri[1]}:${uri[2]}`;
+  const m=clean.match(/open\.spotify\.com\/(?:intl-[a-z]{2}\/)?(track|album|playlist|episode)\/([A-Za-z0-9]+)/i);
+  return m ? `spotify:${m[1]}:${m[2]}` : "";
+}
+
 function renderCards(){
   grid.innerHTML=cards.map(c=>`
     <article class="memory-card card-${esc(c.tipoDeAnimacao)}" data-id="${esc(c.id)}">
@@ -54,35 +70,56 @@ function tone(freq=440,d=.05){
     g.gain.setValueAtTime(.035,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+d);o.start();o.stop(ctx.currentTime+d);
   }catch(e){}
 }
+function parseSpotifyRef(value){
+  const raw=String(value||"").trim();
+  if(!raw)return null;
+  try{
+    if(/^spotify:(track|album|playlist|episode|show):[A-Za-z0-9]+$/i.test(raw)){
+      const m=raw.match(/^spotify:(track|album|playlist|episode|show):([A-Za-z0-9]+)$/i);
+      return {type:m[1].toLowerCase(),id:m[2]};
+    }
+    const u=new URL(raw);
+    if(!/(^|\.)spotify\.com$/i.test(u.hostname))return null;
+    const m=u.pathname.match(/\/(track|album|playlist|episode|show)\/([A-Za-z0-9]+)(?:\/)?$/i);
+    return m?{type:m[1].toLowerCase(),id:m[2]}:null;
+  }catch(e){return null}
+}
 function startMusic(c){
   stopMusic();
   const m=c.cardConfig?.musica||{};
-  const type=m.type||(/spotify/i.test(c.musicaNome||"")?"spotify":(c.musica?.startsWith("data:audio/")||/^audio\//i.test(c.musica||""))?"file":"none");
+  const declared=m.type||"";
   const src=c.musica||m.url||"";
-  if(!src)return;
+  const type=/^(spotify)$/i.test(declared) || parseSpotifyRef(src) ? "spotify" :
+    (/^(file|box)$/i.test(declared) || /^data:audio\//i.test(src) || /^audio\//i.test(src)) ? "file" : "none";
+  if(!src || type==="none")return;
   musicName.textContent=`♫ ${c.musicaNome||"NOW PLAYING"}`;
   musicBar.classList.remove("hidden");
   if(type==="file"){
-    const source=/^data:audio\//i.test(src)?src:src;
-    audio=new Audio(source);audio.loop=true;audio.preload="auto";
+    const source=/^(data:audio\/|blob:|https?:)/i.test(src)?src:new URL(src,document.baseURI).href;
+    audio=new Audio(source);
+    audio.loop=true;
+    audio.preload="auto";
+    audio.addEventListener("error",()=>{musicPause.textContent="▶";musicName.textContent=`♫ ${c.musicaNome||"AUDIO NÃO DISPONÍVEL"}`});
     audio.play().catch(()=>{musicPause.textContent="▶"});
     musicPause.textContent="❚❚";
     return;
   }
   if(type==="spotify"){
-    try{
-      const u=new URL(src), mm=u.pathname.match(/\/(track|album|playlist|episode|show)\/([^/?]+)/);
-      if(mm){
-        const iframe=document.createElement("iframe");
-        iframe.id="externalMusic";
-        iframe.src=`https://open.spotify.com/embed/${mm[1]}/${mm[2]}?utm_source=generator&autoplay=0`;
-        iframe.allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
-        iframe.loading="lazy";
-        iframe.className="spotify-player";
-        cardWindow.appendChild(iframe);
-        musicPause.textContent="▶ SPOTIFY";
-      }
-    }catch(e){}
+    const ref=parseSpotifyRef(src);
+    if(!ref){
+      musicName.textContent="♫ LINK SPOTIFY INVÁLIDO";
+      musicPause.textContent="▶";
+      return;
+    }
+    const iframe=document.createElement("iframe");
+    iframe.id="externalMusic";
+    iframe.src=`https://open.spotify.com/embed/${ref.type}/${ref.id}?utm_source=generator&autoplay=0`;
+    iframe.allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
+    iframe.loading="eager";
+    iframe.referrerPolicy="strict-origin-when-cross-origin";
+    iframe.className="spotify-player";
+    cardWindow.appendChild(iframe);
+    musicPause.textContent="▶ SPOTIFY";
   }
 }
 

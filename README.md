@@ -110,3 +110,10 @@ This is a test build only; the original V26 remains unchanged.
 - Spotify uses a visible official embed with user-initiated playback.
 - Built-in Music Box contains original short instrumental loops bundled locally.
 - Local audio upload capped at 10 MB in the Card Factory.
+
+
+## V35 — music fixes
+- Spotify parser accepts standard Spotify URLs including `/intl-pt/track/...` and Spotify URIs.
+- Local Music Box files resolve against the deployed page URL.
+- Added audio error feedback and a live music status in Card Factory.
+- No GIF functionality added.
