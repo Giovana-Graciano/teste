@@ -101,3 +101,12 @@ This is a test build only; the original V26 remains unchanged.
 - Added subtle theme stickers.
 - Added organic photo rotations.
 - Expanded GIF field fallbacks without changing card architecture.
+
+
+## MEGA BLASTER FINAL
+- Music choices: Spotify link, built-in Renato's Music Box, local audio file, or no music.
+- GIF creation/upload removed from the friend flow.
+- Legacy YouTube option removed.
+- Spotify uses a visible official embed with user-initiated playback.
+- Built-in Music Box contains original short instrumental loops bundled locally.
+- Local audio upload capped at 10 MB in the Card Factory.

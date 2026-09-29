@@ -57,35 +57,35 @@ function tone(freq=440,d=.05){
 function startMusic(c){
   stopMusic();
   const m=c.cardConfig?.musica||{};
-  const type=m.type||(/spotify/i.test(c.musicaNome||"")?"spotify":/youtube/i.test(c.musicaNome||"")?"youtube":(c.musica?.startsWith("data:audio/")?"file":"none"));
+  const type=m.type||(/spotify/i.test(c.musicaNome||"")?"spotify":(c.musica?.startsWith("data:audio/")||/^audio\//i.test(c.musica||""))?"file":"none");
   const src=c.musica||m.url||"";
   if(!src)return;
   musicName.textContent=`♫ ${c.musicaNome||"NOW PLAYING"}`;
   musicBar.classList.remove("hidden");
-  if(type==="file" && src.startsWith("data:audio/")){
-    audio=new Audio(src);audio.loop=true;
-    audio.play().catch(()=>{});
+  if(type==="file"){
+    const source=/^data:audio\//i.test(src)?src:src;
+    audio=new Audio(source);audio.loop=true;audio.preload="auto";
+    audio.play().catch(()=>{musicPause.textContent="▶"});
     musicPause.textContent="❚❚";
     return;
   }
-  let embed="";
-  try{
-    const u=new URL(src);
-    if(type==="youtube"){
-      const id=u.hostname.includes("youtu.be")?u.pathname.slice(1):u.searchParams.get("v");
-      if(id)embed=`https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
-    }
-    if(type==="spotify"){
-      const m=u.pathname.match(/\/(track|album|playlist|episode|show)\/([^/?]+)/);
-      if(m)embed=`https://open.spotify.com/embed/${m[1]}/${m[2]}?utm_source=generator&autoplay=1`;
-    }
-  }catch(e){}
-  if(embed){
-    const iframe=document.createElement("iframe");
-    iframe.id="externalMusic";iframe.src=embed;iframe.allow="autoplay; encrypted-media";iframe.style.cssText="position:absolute;width:1px;height:1px;opacity:.01;pointer-events:none";
-    cardWindow.appendChild(iframe);
+  if(type==="spotify"){
+    try{
+      const u=new URL(src), mm=u.pathname.match(/\/(track|album|playlist|episode|show)\/([^/?]+)/);
+      if(mm){
+        const iframe=document.createElement("iframe");
+        iframe.id="externalMusic";
+        iframe.src=`https://open.spotify.com/embed/${mm[1]}/${mm[2]}?utm_source=generator&autoplay=0`;
+        iframe.allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
+        iframe.loading="lazy";
+        iframe.className="spotify-player";
+        cardWindow.appendChild(iframe);
+        musicPause.textContent="▶ SPOTIFY";
+      }
+    }catch(e){}
   }
 }
+
 function stopMusic(){
   if(audio){audio.pause();audio.currentTime=0;audio=null}
   document.querySelector("#externalMusic")?.remove();
@@ -114,11 +114,8 @@ function openCard(id){
   const font=cfg.font||"inherit";
   const textColor=cfg.textColor||"#111";
   const photoStyle=cfg.photoStyle||"classic";
-  const gifTop=c.gifs?.top||cfg.gifs?.top||c.gifTop||c.gif||c.gifUrl||"";
-  const gifBottom=c.gifs?.bottom||cfg.gifs?.bottom||c.gifBottom||"";
 
   const emojiHTML=emojis.map((e,i)=>`<span class="v33-emoji v33-e${i%10}" aria-hidden="true">${esc(e)}</span>`).join("");
-  const gifHTML=(url,pos)=>url?`<div class="v33-gif v33-gif-${pos}"><img src="${esc(url)}" alt="" loading="eager" onerror="this.parentElement.remove()"></div>`:"";
   const photosHTML=Array.isArray(c.fotos)&&c.fotos.length?`
     <div class="v33-photo-wall ${esc(photoStyle)}">
       ${c.fotos.map((f,i)=>`<div class="v33-photo v33-p${i%4}">
@@ -141,8 +138,6 @@ function openCard(id){
         <span>${esc(t.stamp)}</span><span>FRIEND CARD.EXE</span><span>${esc(String(theme).toUpperCase())}</span>
       </div>
 
-      ${gifHTML(gifTop,"top")}
-
       <div class="v33-header">
         <div class="v33-icon">${esc(c.icon||"★")}</div>
         <div class="v33-title-block">
@@ -159,8 +154,6 @@ function openCard(id){
       </div>
 
       ${photosHTML}
-      ${gifHTML(gifBottom,"bottom")}
-
       <div class="v34-theme-stickers" aria-hidden="true">
         ${theme==="pirate" ? '<span>☠</span><span>★</span><span>AHOY!</span>' :
           theme==="fluminense" ? '<span>★</span><span>TRI</span><span>♥</span>' :
@@ -188,7 +181,7 @@ startBtn.addEventListener("click",()=>{tone(320,.05);setTimeout(()=>tone(520,.09
 closeCard.addEventListener("click",close);
 $("#finalBtn")?.addEventListener("click",openFinal);
 modal.addEventListener("click",e=>{if(e.target.classList.contains("modal-backdrop"))close()});
-musicPause.addEventListener("click",()=>{if(audio){if(audio.paused){audio.play();musicPause.textContent="❚❚"}else{audio.pause();musicPause.textContent="▶"}}});
+musicPause.addEventListener("click",()=>{if(audio){if(audio.paused){audio.play();musicPause.textContent="❚❚"}else{audio.pause();musicPause.textContent="▶"}}else{const frame=document.querySelector("#externalMusic");if(frame){frame.scrollIntoView({behavior:"smooth",block:"center"});}}});
 document.querySelectorAll(".nav-btn").forEach(b=>b.addEventListener("click",()=>document.getElementById(b.dataset.scroll)?.scrollIntoView({behavior:"smooth"}) ));
 document.addEventListener("pointermove",e=>{const s=document.createElement("span");s.textContent=["✦","·","★","✧"][Math.floor(Math.random()*4)];s.style.cssText=`position:fixed;left:${e.clientX}px;top:${e.clientY}px;color:#ffe04a;pointer-events:none;z-index:9998;font-weight:bold;animation:cursorFade .5s forwards`;document.body.appendChild(s);setTimeout(()=>s.remove(),500)});
 const style=document.createElement("style");style.textContent="@keyframes cursorFade{to{transform:translateY(-15px) scale(.2);opacity:0}}.intro-exit{animation:introExit .55s forwards}@keyframes introExit{to{transform:scale(1.04);filter:brightness(2);opacity:0}}";document.head.appendChild(style);

@@ -249,3 +249,8 @@ button{font:inherit}.hidden{display:none!important}.screen{min-height:100vh;widt
 .v33-photo-wall.sticker .v33-p0{transform:rotate(-4deg)}
 .v33-photo-wall.sticker .v33-p1{transform:rotate(3deg) translateY(-3px)}
 .v33-photo-wall.sticker .v33-p2{transform:rotate(-2deg)}
+
+/* MEGA BLASTER FINAL — music */
+.spotify-player{display:block;position:relative;width:min(100%,352px);height:152px;margin:10px auto 0;border:0;border-radius:12px;box-shadow:4px 4px #111;z-index:20}
+.music-bar{position:relative;z-index:30;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.music-bar button{font-family:"Courier New",monospace;font-weight:900;cursor:pointer}
