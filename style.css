@@ -263,3 +263,5 @@ button{font:inherit}.hidden{display:none!important}.screen{min-height:100vh;widt
 .spotify-status.ok{color:#087f3e}
 .spotify-status.error{color:#a40032}
 .audio-error{margin-top:5px;padding:5px;background:#ffe4e4;border:2px solid #a40032;color:#700020;font:700 10px "Courier New",monospace}
+
+.audio-preview-label{font:900 10px "Courier New",monospace;margin:6px 0 4px}.audio-preview-btn{margin-top:7px}.v10-music-extra audio{width:100%;max-width:360px;height:38px}.audio-preview-status{display:block;margin-top:5px;font:700 9px "Courier New",monospace}
