@@ -72,9 +72,8 @@ A música de arquivo pode tocar no clique de abertura. YouTube/Spotify dependem 
 - The nickname Rê is not used.
 
 
-## V30 — real Card Factory integration test
-- Uses the exact JSON files exported by the Card Factory as the public `cards/cards.json`.
-- `loadCards()` now accepts both the original array format and `{cards:[...]}`.
-- The existing `renderCards()` and `openCard()` are preserved; no new card renderer was invented.
-- Cards loaded from `cards.json` are exposed as `window.__renatinhoLoadedCards` for debugging.
-- This build contains the actual GIGI and BRUNO fake cards exported from the Card Factory.
+## V31 — direct renderer test
+- Uses the exact two exported Card Factory JSON objects directly as the initial `cards` array.
+- No network fetch is involved in this diagnostic build.
+- The existing `renderCards()` and `openCard()` are untouched.
+- If the cards appear in V31, the renderer is proven compatible and the remaining issue is only the JSON loading/deployment path.
