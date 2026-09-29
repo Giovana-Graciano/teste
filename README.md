@@ -94,3 +94,10 @@ This is a test build only; the original V26 remains unchanged.
 - Renders the Card Factory `cardConfig.theme`, `font`, `textColor`, `photoStyle`, and `emojis`.
 - Renders `gifs.top` / `gifs.bottom` as actual image elements when the supplied URL is a usable image URL.
 - Uses the real fake Card Factory cards as embedded test data when present.
+
+
+## V34 — final micro-polish
+- Added friend-specific message label.
+- Added subtle theme stickers.
+- Added organic photo rotations.
+- Expanded GIF field fallbacks without changing card architecture.

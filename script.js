@@ -114,8 +114,8 @@ function openCard(id){
   const font=cfg.font||"inherit";
   const textColor=cfg.textColor||"#111";
   const photoStyle=cfg.photoStyle||"classic";
-  const gifTop=c.gifs?.top||cfg.gifs?.top||"";
-  const gifBottom=c.gifs?.bottom||cfg.gifs?.bottom||"";
+  const gifTop=c.gifs?.top||cfg.gifs?.top||c.gifTop||c.gif||c.gifUrl||"";
+  const gifBottom=c.gifs?.bottom||cfg.gifs?.bottom||c.gifBottom||"";
 
   const emojiHTML=emojis.map((e,i)=>`<span class="v33-emoji v33-e${i%10}" aria-hidden="true">${esc(e)}</span>`).join("");
   const gifHTML=(url,pos)=>url?`<div class="v33-gif v33-gif-${pos}"><img src="${esc(url)}" alt="" loading="eager" onerror="this.parentElement.remove()"></div>`:"";
@@ -154,11 +154,21 @@ function openCard(id){
       </div>
 
       <div class="v33-message" style="color:${esc(textColor)};font-family:${esc(font)}">
-        ${esc(c.mensagem||"Feliz aniversário, Renato!").replace(/\n/g,"<br>")}
+        <div class="v34-message-label">★ ${esc(String(c.nome||"FRIEND").toUpperCase())}'S MESSAGE ★</div>
+        <div class="v34-message-text">${esc(c.mensagem||"Feliz aniversário, Renato!").replace(/\n/g,"<br>")}</div>
       </div>
 
       ${photosHTML}
       ${gifHTML(gifBottom,"bottom")}
+
+      <div class="v34-theme-stickers" aria-hidden="true">
+        ${theme==="pirate" ? '<span>☠</span><span>★</span><span>AHOY!</span>' :
+          theme==="fluminense" ? '<span>★</span><span>TRI</span><span>♥</span>' :
+          theme==="dino" ? '<span>★</span><span>RAWR!</span><span>☘</span>' :
+          theme==="music" ? '<span>♪</span><span>★</span><span>♫</span>' :
+          theme==="books" ? '<span>★</span><span>READ!</span><span>✎</span>' :
+          '<span>★</span><span>Y2K!</span><span>♥</span>'}
+      </div>
 
       <div class="v33-footer">
         <span>♥ MEMORY SAVED</span><span>2004 // FRIENDS.NET</span>
