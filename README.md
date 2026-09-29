@@ -72,25 +72,9 @@ A música de arquivo pode tocar no clique de abertura. YouTube/Spotify dependem 
 - The nickname Rê is not used.
 
 
-## TEST BUILD — FAKE FRIEND CARDS
-This build installs the fake cards generated from the Card Factory:
-- GIGI / gigi-29aua
-- BRUNO / bruno-29tkj
-
-Their photos, GIF fields, themes, text colors, animation types, and YouTube music metadata are preserved exactly as generated.
-
-This is a test build only; the original V26 remains unchanged.
-
-
-## V27 — real GIF test
-- Replaced the Tenor page URL in the two fake cards with a direct `.gif` image URL from GIPHY's documented image URL format.
-- The same direct GIF is used in the top and bottom GIF slots for testing.
-- Original V26 remains unchanged.
-
-
-## V28 — fake cards loading repair
-- Installed the two generated fake cards as `cards/cards.json` using the compatible `{cards:[...]}` shape.
-- Added a tolerant loader for both array and object JSON formats.
-- Added a fallback renderer if the page does not expose its normal card-render function.
-- GIF test URL remains a direct `.gif` URL.
-- Original V26 remains unchanged.
+## V30 — real Card Factory integration test
+- Uses the exact JSON files exported by the Card Factory as the public `cards/cards.json`.
+- `loadCards()` now accepts both the original array format and `{cards:[...]}`.
+- The existing `renderCards()` and `openCard()` are preserved; no new card renderer was invented.
+- Cards loaded from `cards.json` are exposed as `window.__renatinhoLoadedCards` for debugging.
+- This build contains the actual GIGI and BRUNO fake cards exported from the Card Factory.

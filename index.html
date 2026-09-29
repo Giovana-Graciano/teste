@@ -363,33 +363,5 @@
 </div>
 
 <script src="script.js?v=9"></script>
-
-<script id="v28-card-render-fallback">
-(() => {
-  const load = (cards) => {
-    if (!Array.isArray(cards) || !cards.length) return;
-    const host =
-      document.querySelector("#cardsGrid") ||
-      document.querySelector(".cards-grid") ||
-      document.querySelector("#friendCards") ||
-      document.querySelector(".friend-cards");
-    if (!host || host.children.length) return;
-
-    cards.forEach(card => {
-      const el = document.createElement("article");
-      el.className = "friend-card";
-      el.innerHTML = `
-        <div class="friend-card-title">${card.name || "FRIEND"}</div>
-        <div class="friend-card-preview">${card.message || card.text || ""}</div>
-        <div class="friend-card-meta">${card.theme || ""}</div>
-      `;
-      host.appendChild(el);
-    });
-  };
-  document.addEventListener("friend-cards-loaded", e => load(e.detail));
-  if (Array.isArray(window.__importedFriendCards)) load(window.__importedFriendCards);
-})();
-</script>
-
 </body>
 </html>

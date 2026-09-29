@@ -11,16 +11,33 @@ const fallback = [{"id": "fluminense", "nome": "AMIGO 1", "titulo": "STADIUM MOD
 async function loadLoveFile(){try{const r=await fetch("love-file.json?v=1",{cache:"no-store"});if(r.ok){const x=await r.json();specialCard={...specialCard,...x};}}catch(e){}}
 async function loadCards(){
   await loadLoveFile();
+
+  const normalizeCards = (payload) => {
+    if (Array.isArray(payload)) return payload;
+    if (payload && Array.isArray(payload.cards)) return payload.cards;
+    return [];
+  };
+
   try{
-    const r=await fetch("cards/cards.json?v=GIFTEST27",{cache:"no-store"});
-    if(!r.ok) throw new Error("cards.json");
-    cards=await r.json();
-  }catch(e){cards=fallback}
+    const r = await fetch("cards/cards.json?v=v30", {cache:"no-store"});
+    if(!r.ok) throw new Error("cards.json HTTP "+r.status);
+    const payload = await r.json();
+    const imported = normalizeCards(payload);
+    if(imported.length) cards = imported;
+    else throw new Error("cards.json vazio");
+  }catch(e){
+    /* Keep the original built-in cards if the external file is unavailable. */
+    cards = fallback;
+    console.warn("Friend cards fallback:", e);
+  }
+
   renderCards();
   renderPlaylist();
-  window.dispatchEvent(new CustomEvent('renatinho:cards-loaded'));
+  window.__renatinhoLoadedCards = cards.map(c => c.id);
+  window.dispatchEvent(new CustomEvent("renatinho:cards-loaded"));
   if(window.__refreshPhotoBooth) window.__refreshPhotoBooth();
 }
+
 function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 function renderCards(){
   grid.innerHTML=cards.map(c=>`
@@ -231,23 +248,3 @@ function cycleTrack(dir){
   let dinoClicks=0;document.querySelector('.floating-emojis')?.addEventListener('click',e=>{if(e.target.textContent.includes('🦖')){dinoClicks++;if(dinoClicks>=3){toast('🦖 SECRET DINO MODE','RAWRSOME! You found a hidden memory.');dinoClicks=0}}});
   let avatarClicks=0;q('#renatinhoAvatar')?.addEventListener('click',()=>{avatarClicks++;if(avatarClicks>=5){toast('💚 RENATINHO.EXE','CHEAT CODE ACTIVATED: BIRTHDAY GOD MODE');avatarClicks=0}});
 })();
-
-
-fetch("cards/cards.json?v=GIFTEST28")
-  .then(r => {
-    if (!r.ok) throw new Error("cards.json HTTP " + r.status);
-    return r.json();
-  })
-  .then(payload => {
-    const importedCards = Array.isArray(payload) ? payload : (payload.cards || []);
-    if (typeof renderCards === "function") {
-      renderCards(importedCards);
-    } else if (typeof window.renderCards === "function") {
-      window.renderCards(importedCards);
-    } else {
-      window.__importedFriendCards = importedCards;
-      document.dispatchEvent(new CustomEvent("friend-cards-loaded", {detail: importedCards}));
-    }
-  })
-  .catch(err => console.error("Friend cards could not be loaded:", err));
-
