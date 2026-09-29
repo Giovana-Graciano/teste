@@ -72,8 +72,25 @@ A música de arquivo pode tocar no clique de abertura. YouTube/Spotify dependem 
 - The nickname Rê is not used.
 
 
-## V31 — direct renderer test
-- Uses the exact two exported Card Factory JSON objects directly as the initial `cards` array.
-- No network fetch is involved in this diagnostic build.
-- The existing `renderCards()` and `openCard()` are untouched.
-- If the cards appear in V31, the renderer is proven compatible and the remaining issue is only the JSON loading/deployment path.
+## TEST BUILD — FAKE FRIEND CARDS
+This build installs the fake cards generated from the Card Factory:
+- GIGI / gigi-29aua
+- BRUNO / bruno-29tkj
+
+Their photos, GIF fields, themes, text colors, animation types, and YouTube music metadata are preserved exactly as generated.
+
+This is a test build only; the original V26 remains unchanged.
+
+
+## V27 — real GIF test
+- Replaced the Tenor page URL in the two fake cards with a direct `.gif` image URL from GIPHY's documented image URL format.
+- The same direct GIF is used in the top and bottom GIF slots for testing.
+- Original V26 remains unchanged.
+
+
+## V32 — Card Factory visual integration
+- Based directly on the uploaded `renato2000-main.zip`.
+- Preserves the successful card-loading approach used in the working test.
+- Renders the Card Factory `cardConfig.theme`, `font`, `textColor`, `photoStyle`, and `emojis`.
+- Renders `gifs.top` / `gifs.bottom` as actual image elements when the supplied URL is a usable image URL.
+- Uses the real fake Card Factory cards as embedded test data when present.

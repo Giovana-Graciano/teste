@@ -13,7 +13,7 @@ async function loadCards(){
   await loadLoveFile();
   renderCards();
   renderPlaylist();
-  window.__renatinhoLoadedCards = cards.map(c => c.id);
+  window.__renatinhoLoadedCards = cards.map(c=>c.id);
   window.dispatchEvent(new CustomEvent("renatinho:cards-loaded"));
   if(window.__refreshPhotoBooth) window.__refreshPhotoBooth();
 }
@@ -98,18 +98,72 @@ function openCard(id){
   opened.add(id);saveOpened();
   initAudio();tone(520,.04);setTimeout(()=>tone(780,.07),35);
   startMusic(c);
+
+  const cfg=c.cardConfig||{};
+  const theme=cfg.theme||"y2k";
+  const themeBg={
+    y2k:"linear-gradient(135deg,#fdf7ff 0%,#d8f0ff 35%,#ffd6ec 70%,#fff7a8 100%)",
+    fluminense:"linear-gradient(135deg,#fff 0%,#d9f4e4 35%,#f4c9d1 70%,#0d6b3b 100%)",
+    dino:"linear-gradient(135deg,#e8ffd5 0%,#a7df91 45%,#fff0a8 100%)",
+    pirate:"linear-gradient(135deg,#fff2bd 0%,#d7b77a 45%,#513d2a 100%)",
+    music:"linear-gradient(135deg,#eadbff 0%,#aee8ff 45%,#ffd4f2 100%)",
+    books:"linear-gradient(135deg,#fff7df 0%,#e8dcc5 50%,#c9b28d 100%)"
+  }[theme]||"linear-gradient(135deg,#e9ebe7,#a9aea7)";
+  const emojis=Array.isArray(cfg.emojis)?cfg.emojis.filter(Boolean):[];
+  const gifTop=c.gifs?.top||cfg.gifs?.top||"";
+  const gifBottom=c.gifs?.bottom||cfg.gifs?.bottom||"";
+  const font=cfg.font||"inherit";
+  const textColor=cfg.textColor||"#111";
+  const photoStyle=cfg.photoStyle||"classic";
+
+  const emojiHTML=emojis.map((e,i)=>`
+    <span class="card-emoji-float card-emoji-${i%6}" aria-hidden="true">${esc(e)}</span>
+  `).join("");
+
+  const gifHTML=(url,pos)=>url?`
+    <div class="card-gif-zone card-gif-${pos}">
+      <img src="${esc(url)}" alt="" loading="eager"
+        onerror="this.closest('.card-gif-zone').classList.add('gif-broken')">
+    </div>`:"";
+
+  const photosHTML=c.fotos?.length?`
+    <div class="card-photo-wall ${esc(photoStyle)}">
+      ${c.fotos.map(f=>`<img src="${esc(f.data||f)}" alt="Foto da memória">`).join("")}
+    </div>`:"";
+
   cardWindow.className=`card-window anim-${c.tipoDeAnimacao||"secret"} opening`;
   $("#modalFile").textContent=`${String(c.id).toUpperCase()}.EXE`;
-  cardContent.style.color=c.cardConfig?.textColor||"";cardContent.innerHTML=`
-    <div class="card-hero">
-      <div class="big-icon">${esc(c.icon||"★")}</div>
-      <div><div class="tiny">★ CLASSIFIED FRIEND MESSAGE ★</div><h3>${esc(c.titulo||"FELIZ ANIVERSÁRIO")}</h3><div class="from">DE: ${esc(c.nome||"UM AMIGO")}</div></div>
-    </div>
-    <div class="msg">${esc(c.mensagem||"Feliz aniversário, Renato!").replace(/\n/g,"<br>")}</div>
-    ${c.fotos?.length?`<div style="margin-top:15px;display:flex;gap:10px;flex-wrap:wrap">${c.fotos.map(f=>`<img src="${f.data||f}" style="max-width:180px;max-height:180px;border:5px ridge #fff;box-shadow:5px 5px #000">`).join("")}</div>`:""}${c.gifs?.top?`<div class="card-gif-zone"><img src="${esc(c.gifs.top)}" style="max-width:180px;max-height:120px;border:5px ridge #fff;box-shadow:5px 5px #000"></div>`:""}${c.gifs?.bottom?`<div class="card-gif-zone"><img src="${esc(c.gifs.bottom)}" style="max-width:180px;max-height:120px;border:5px ridge #fff;box-shadow:5px 5px #000"></div>`:""}`;
-  modal.classList.remove("hidden");modal.setAttribute("aria-hidden","false");
+
+  cardContent.style.color=textColor;
+  cardContent.style.fontFamily=font;
+  cardContent.innerHTML=`
+    <div class="card-memory-shell theme-${esc(theme)}" style="--card-bg:${themeBg};--card-text:${esc(textColor)}">
+      <div class="card-emoji-layer">${emojiHTML}</div>
+      <div class="card-theme-badge">★ ${esc(String(theme).toUpperCase())} MODE ★</div>
+
+      <div class="card-hero">
+        <div class="big-icon">${esc(c.icon||"★")}</div>
+        <div>
+          <div class="tiny">★ CLASSIFIED FRIEND MESSAGE ★</div>
+          <h3>${esc(c.titulo||"FELIZ ANIVERSÁRIO")}</h3>
+          <div class="from">DE: ${esc(c.nome||"UM AMIGO")}</div>
+        </div>
+      </div>
+
+      ${gifHTML(gifTop,"top")}
+
+      <div class="msg" style="color:${esc(textColor)}">${esc(c.mensagem||"Feliz aniversário, Renato!").replace(/\n/g,"<br>")}</div>
+
+      ${photosHTML}
+
+      ${gifHTML(gifBottom,"bottom")}
+    </div>`;
+
+  modal.classList.remove("hidden");
+  modal.setAttribute("aria-hidden","false");
   document.body.style.overflow="hidden";
 }
+
 function close(){
   stopMusic();modal.classList.add("hidden");modal.setAttribute("aria-hidden","true");document.body.style.overflow="";
 }

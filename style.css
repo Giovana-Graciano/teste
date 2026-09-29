@@ -82,3 +82,96 @@ button{font:inherit}.hidden{display:none!important}.screen{min-height:100vh;widt
 /* V14 cleanup */
 .guest-note{font-size:9px;background:#111;color:#8dffb4;border:3px ridge #fff;padding:7px;line-height:1.5}.playlist-section{margin-bottom:22px}.legacy-grid-3{grid-template-columns:repeat(2,minmax(0,1fr))!important}.legacy-zone .winamp-app{display:none!important}@keyframes guestIn{from{transform:translateY(-8px);opacity:0}to{transform:none;opacity:1}}
 @media(max-width:900px){.legacy-grid-3{grid-template-columns:1fr!important}}
+
+
+/* V32 — Card Factory visual data renderer */
+.card-memory-shell{
+  position:relative;
+  overflow:hidden;
+  min-height:430px;
+  padding:18px;
+  background:var(--card-bg);
+  color:var(--card-text);
+  border:7px ridge #fff;
+  box-shadow:7px 7px #111;
+}
+.card-memory-shell::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.10) 0 2px,transparent 2px 6px);
+  pointer-events:none;
+  mix-blend-mode:screen;
+}
+.card-emoji-layer{position:absolute;inset:0;pointer-events:none;z-index:1}
+.card-emoji-float{
+  position:absolute;
+  font-size:32px;
+  filter:drop-shadow(3px 3px #111);
+  animation:v32EmojiFloat 2.2s ease-in-out infinite;
+}
+.card-emoji-0{left:3%;top:5%}.card-emoji-1{right:4%;top:8%;animation-delay:.25s}
+.card-emoji-2{left:5%;bottom:7%;animation-delay:.5s}.card-emoji-3{right:5%;bottom:5%;animation-delay:.75s}
+.card-emoji-4{left:44%;top:2%;animation-delay:1s}.card-emoji-5{right:35%;bottom:2%;animation-delay:1.25s}
+.card-memory-shell .card-theme-badge{
+  position:relative;
+  z-index:3;
+  display:inline-block;
+  padding:5px 8px;
+  margin-bottom:8px;
+  background:#111;
+  color:#fff36b;
+  border:3px outset #fff;
+  font-size:8px;
+  font-weight:900;
+}
+.card-memory-shell .card-hero,
+.card-memory-shell .msg,
+.card-memory-shell .card-photo-wall,
+.card-memory-shell .card-gif-zone{position:relative;z-index:3}
+.card-photo-wall{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  justify-content:center;
+  margin-top:16px;
+}
+.card-photo-wall img{
+  width:180px;
+  height:180px;
+  object-fit:cover;
+  border:5px ridge #fff;
+  box-shadow:5px 5px #111;
+  background:#fff;
+}
+.card-photo-wall.polaroid img{
+  background:#fff;
+  padding:8px 8px 28px;
+  border:1px solid #aaa;
+  box-shadow:5px 5px #111;
+}
+.card-photo-wall.pixel img{image-rendering:pixelated}
+.card-photo-wall.sticker img{border-radius:18px;transform:rotate(-2deg)}
+.card-gif-zone{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:20px;
+  margin:10px 0;
+}
+.card-gif-zone img{
+  max-width:min(260px,70%);
+  max-height:160px;
+  border:5px ridge #fff;
+  box-shadow:5px 5px #111;
+}
+.card-gif-zone.gif-broken{display:none}
+@keyframes v32EmojiFloat{
+  0%,100%{transform:translateY(0) rotate(-3deg) scale(1)}
+  50%{transform:translateY(-12px) rotate(5deg) scale(1.08)}
+}
+@media(max-width:650px){
+  .card-content .card-hero{grid-template-columns:90px 1fr;gap:10px}
+  .card-content .big-icon{font-size:70px}
+  .card-photo-wall img{width:130px;height:130px}
+}
